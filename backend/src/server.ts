@@ -1,17 +1,8 @@
-import express from 'express';
-import cors from 'cors';
+import app from './app';
 import { pool } from './config/db';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get('/test', (req, res) => {
-  res.json({ message: "Backend is working!" });
-});
 
 const PORT = process.env.PORT || 5000;
 
@@ -21,9 +12,6 @@ const startServer = async () => {
     console.error('[Config Error] DATABASE_URL is missing in environment variables!');
     process.exit(1);
   }
-
-  const sanitizedUrl = dbUrl.replace(/:([^:@]+)@/, ':******@');
-  console.log(`Attempting to connect to database: ${sanitizedUrl}`);
 
   try {
     await pool.query('SELECT 1');
