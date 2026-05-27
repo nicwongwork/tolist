@@ -64,7 +64,7 @@ export const App: React.FC = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center', background: '#001529', padding: '0 24px' }}>
         <Space size="middle">
-          <CheckCircleOutlined style={{ color: '#1890ff', fontSize: '24px' }} />
+          <CheckCircleOutlined style={{ color: 'blue', fontSize: '24px' }} />
           <Title level={3} style={{ color: '#fff', margin: 0, lineHeight: '64px' }}>
             Todo Duty Manager
           </Title>
@@ -99,10 +99,10 @@ export const App: React.FC = () => {
                       className="duty-item"
                       actions={
                         isEditing ? [
-                          <Button type="text" icon={<SaveOutlined style={{ color: '#52c41a' }} />} onClick={handleSaveInline}>Save</Button>,
-                          <Button type="text" icon={<CloseOutlined style={{ color: '#ff4d4f' }} />} onClick={handleCancelEdit}>Cancel</Button>
+                          <Button type="text" icon={<SaveOutlined style={{ color: 'green' }} />} onClick={handleSaveInline}>Save</Button>,
+                          <Button type="text" icon={<CloseOutlined style={{ color: 'red' }} />} onClick={handleCancelEdit}>Cancel</Button>
                         ] : [
-                          <Button type="text" icon={<EditOutlined style={{ color: '#1890ff' }} />} onClick={() => handleEditClick(item)} disabled={editingId !== null || loading}>Edit</Button>,
+                          <Button type="text" icon={<EditOutlined style={{ color: 'blue' }} />} onClick={() => handleEditClick(item)} disabled={editingId !== null || loading}>Edit</Button>,
                           <Popconfirm
                             title="Are you sure you want to delete this duty?"
                             onConfirm={() => handleDelete(item.id)}
