@@ -1,122 +1,200 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from 'react';
+import { Layout, Typography, List, Button, Form, Input, Space, Popconfirm, Card, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import { Duty } from './types/duty.interface';
+import './index.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const { Header, Content, Footer } = Layout;
+const { Title } = Typography;
+
+export const App: React.FC = () => {
+  const [duties, setDuties] = useState<Duty[]>([
+    { id: '1', name: 'Design backend database schema architecture (Plain SQL)' },
+    { id: '2', name: 'Setup frontend layout with Ant Design components' },
+    { id: '3', name: 'Write robust Jest unit tests and handle extreme edge cases' },
+  ]);
+
+  const [createForm] = Form.useForm();
+  const [inlineEditForm] = Form.useForm();
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const nameValidationRules = [
+    { required: true, message: 'Please enter a duty name' },
+    { max: 100, message: 'Duty name cannot exceed 100 characters' },
+    {
+      validator: (_: any, value: string) => {
+        if (value && value.trim().length === 0) {
+          return Promise.reject(new Error('Duty name cannot be empty or whitespaces only'));
+        }
+        return Promise.resolve();
+      }
+    }
+  ];
+
+  const onFinishCreate = (values: { name: string }) => {
+    const trimmedName = values.name.trim();
+    if (trimmedName) {
+      const newId = String(Date.now());
+      const newDuty: Duty = { id: newId, name: trimmedName };
+      setDuties([...duties, newDuty]);
+      createForm.resetFields();
+      message.success('Duty created successfully');
+    }
+  };
+
+  const handleEditClick = (item: Duty) => {
+    setEditingId(item.id);
+    inlineEditForm.setFieldsValue({ inlineName: item.name });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    inlineEditForm.resetFields();
+  };
+
+  const handleSaveInline = async () => {
+    try {
+      const values = await inlineEditForm.validateFields(['inlineName']);
+      const trimmedName = values.inlineName.trim();
+
+      if (editingId && trimmedName) {
+        setDuties(duties.map(d => d.id === editingId ? { ...d, name: trimmedName } : d));
+        setEditingId(null);
+        inlineEditForm.resetFields();
+        message.success('Duty updated successfully');
+      }
+    } catch (errorInfo) {
+      console.log('Inline validation failed:', errorInfo);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    setDuties(duties.filter(d => d.id !== id));
+    message.success('Duty deleted successfully');
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header style={{ display: 'flex', alignItems: 'center', background: '#001529', padding: '0 24px' }}>
+        <Space size="middle">
+          <CheckCircleOutlined style={{ color: '#1890ff', fontSize: '24px' }} />
+          <Title level={3} style={{ color: '#fff', margin: 0, lineHeight: '64px' }}>
+            Todo Duty Manager
+          </Title>
+        </Space>
+      </Header>
 
-      <div className="ticks"></div>
+      <Content style={{ padding: '40px 20px', maxWidth: '750px', margin: '0 auto', width: '100%' }}>
+        <Card style={{ borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.05)' }}>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <Form
+            form={createForm}
+            onFinish={onFinishCreate}
+            layout="inline"
+            style={{ marginBottom: '24px', display: 'flex' }}
+          >
+            <Form.Item
+              name="name"
+              rules={nameValidationRules}
+              style={{ flex: 1, marginRight: '8px', marginBottom: 0 }}
+            >
+              <Input placeholder="Add a new todo duty..." maxLength={100} size="large" allowClear />
+            </Form.Item>
+            <Form.Item style={{ marginRight: 0, marginBottom: 0 }}>
+              <Button type="primary" htmlType="submit" icon={<PlusOutlined />} size="large">
+                Add
+              </Button>
+            </Form.Item>
+          </Form>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+          <Form form={inlineEditForm} component={false}>
+            <List
+              bordered
+              dataSource={duties}
+              locale={{ emptyText: 'No duties found. Create one above!' }}
+              renderItem={(item: Duty) => {
+                const isEditing = item.id === editingId;
 
-export default App
+                return (
+                  <List.Item
+                    className="duty-item"
+                    actions={
+                      isEditing ? [
+                        <Button
+                          type="text"
+                          icon={<SaveOutlined style={{ color: '#52c41a' }} />}
+                          onClick={handleSaveInline}
+                        >
+                          Save
+                        </Button>,
+                        <Button
+                          type="text"
+                          icon={<CloseOutlined style={{ color: '#ff4d4f' }} />}
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </Button>
+                      ] : [
+                        <Button
+                          type="text"
+                          icon={<EditOutlined style={{ color: '#1890ff' }} />}
+                          onClick={() => handleEditClick(item)}
+                          disabled={editingId !== null}
+                        >
+                          Edit
+                        </Button>,
+                        <Popconfirm
+                          title="Are you sure you want to delete this duty?"
+                          onConfirm={() => handleDelete(item.id)}
+                          okText="Delete"
+                          cancelText="Cancel"
+                          okButtonProps={{ danger: true }}
+                          disabled={editingId !== null}
+                        >
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            disabled={editingId !== null}
+                          >
+                            Delete
+                          </Button>
+                        </Popconfirm>
+                      ]
+                    }
+                    style={{ padding: '16px 24px', alignItems: 'center' }}
+                  >
+                    {isEditing ? (
+                      <Form.Item
+                        name="inlineName"
+                        rules={nameValidationRules}
+                        style={{ margin: 0, width: '100%', marginRight: '16px' }}
+                      >
+                        <Input
+                          maxLength={100}
+                          size="large"
+                          onPressEnter={handleSaveInline}
+                          autoFocus
+                        />
+                      </Form.Item>
+                    ) : (
+                      <span style={{ fontSize: '16px', color: '#262626', wordBreak: 'break-word' }}>
+                        {item.name}
+                      </span>
+                    )}
+                  </List.Item>
+                );
+              }}
+              style={{ borderRadius: '8px', overflow: 'hidden' }}
+            />
+          </Form>
+        </Card>
+      </Content>
+
+      <Footer style={{ textAlign: 'center', color: '#bfbfbf', background: 'transparent' }}>
+        Nic Wong ©2026 Created with Ant Design and React
+      </Footer>
+    </Layout>
+  );
+};
