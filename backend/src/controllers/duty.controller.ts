@@ -78,7 +78,7 @@ export const deleteDuty = async (req: Request, res: Response, next: NextFunction
                 }
             });
         }
-        res.status(204).send();
+        res.status(200).json({ message: 'Duty deleted successfully' });
     } catch (err) {
         next(err);
     }
